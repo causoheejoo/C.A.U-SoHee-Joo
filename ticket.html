@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+<title>Ticket</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Poppins:wght@300;400;500;600&display=swap');
+
+  :root {
+    --stage: #eaf5fc;
+    --paper: #dceefa;
+    --paper-edge: #c7e3f5;
+    --ink: #10141a;
+    --ink-soft: #4c5a68;
+    --blue-deep: #1f5c86;
+    --blue-mid: #3f83ad;
+    --line: rgba(16, 20, 26, 0.16);
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: 'Poppins', sans-serif;
+    background: var(--stage);
+    color: var(--ink);
+    padding: 40px 16px 80px;
+    min-height: 100vh;
+  }
+
+  .page-header { text-align: center; max-width: 640px; margin: 0 auto 32px; }
+  .page-eyebrow {
+    font-family: 'Cormorant Garamond', serif; font-style: italic; font-weight: 500; font-size: 14px;
+    letter-spacing: 0.32em; color: var(--blue-deep); text-transform: uppercase; margin-bottom: 8px;
+  }
+  .page-title {
+    font-family: 'Cormorant Garamond', serif; font-weight: 700; font-size: 44px;
+    color: var(--ink); margin: 0 0 8px; letter-spacing: 0.02em;
+  }
+  .page-sub { font-size: 12.5px; color: var(--ink-soft); margin: 0; letter-spacing: 0.02em; }
+
+  .stage { max-width: 640px; margin: 0 auto; }
+
+  .ticket {
+    display: flex;
+    background: var(--paper);
+    border-radius: 14px;
+    box-shadow: 0 18px 36px rgba(31, 92, 134, 0.16);
+    overflow: hidden;
+    position: relative;
+  }
+  .ticket::before {
+    content: ""; position: absolute; width: 22px; height: 22px; border-radius: 50%;
+    background: var(--stage); top: 50%; transform: translateY(-50%); z-index: 2; left: calc(96px - 11px);
+  }
+
+  .stub {
+    width: 96px; flex-shrink: 0; position: relative;
+    background: var(--blue-deep);
+    display: flex; flex-direction: column; align-items: center; justify-content: space-between;
+    padding: 22px 0; border-right: 2px dashed rgba(255,255,255,0.3);
+  }
+  .stub-top { font-family: 'Cormorant Garamond', serif; font-weight: 600; font-size: 11px; letter-spacing: 0.2em; color: rgba(255,255,255,0.85); text-transform: uppercase; text-align: center; }
+  .stub-mid {
+    writing-mode: vertical-rl; text-orientation: mixed;
+    font-family: 'Cormorant Garamond', serif; font-weight: 700; font-size: 16px;
+    letter-spacing: 0.34em; color: #ffffff; text-transform: uppercase;
+  }
+  .stub-serial { font-family: 'Poppins', sans-serif; font-size: 9px; color: rgba(255,255,255,0.7); letter-spacing: 0.1em; }
+
+  .ticket-main { flex: 1; padding: 28px 28px 22px; min-width: 0; }
+
+  .field-row { display: flex; gap: 14px; }
+  .field-row .field-block { flex: 1; }
+
+  .field-block { margin-bottom: 20px; }
+  .field-block:last-child { margin-bottom: 0; }
+  .field-num {
+    font-family: 'Cormorant Garamond', serif; font-weight: 600; font-size: 12px;
+    color: var(--blue-mid); letter-spacing: 0.18em; text-transform: uppercase;
+    display: flex; align-items: center; gap: 8px; margin-bottom: 7px;
+  }
+  .field-num::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+
+  .ticket input, .ticket textarea {
+    width: 100%; background: transparent; border: none; border-bottom: 1px solid var(--line);
+    color: var(--ink); font-family: 'Poppins', sans-serif; font-weight: 400; font-size: 15px;
+    padding: 4px 2px 8px; outline: none; resize: none; line-height: 1.5;
+  }
+  .ticket input::placeholder, .ticket textarea::placeholder { color: var(--ink-soft); opacity: 0.55; }
+  .ticket input:focus, .ticket textarea:focus { border-color: var(--blue-deep); }
+  #f-title { font-family: 'Cormorant Garamond', serif; font-size: 24px; font-weight: 700; }
+  #f-love { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 17px; font-weight: 500; }
+
+  .ticket-footer {
+    display: flex; justify-content: flex-end; align-items: center;
+    margin-top: 6px; padding-top: 14px; border-top: 1px dashed var(--line);
+  }
+  .save-btn {
+    font-family: 'Cormorant Garamond', serif; font-weight: 700; font-size: 14px;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    background: var(--blue-deep); color: #ffffff; border: none;
+    border-radius: 999px; padding: 10px 24px; cursor: pointer;
+    transition: background 0.15s ease, transform 0.1s ease;
+  }
+  .save-btn:hover { background: #163f5c; transform: translateY(-1px); }
+
+  .save-warn { font-size: 12px; color: #a13e3e; text-align: center; margin: 12px 0 0; display: none; }
+
+  .collection-head { display: flex; justify-content: space-between; align-items: baseline; margin: 44px 0 14px; }
+  .collection-title { font-family: 'Cormorant Garamond', serif; font-weight: 600; font-size: 17px; color: var(--ink); margin: 0; letter-spacing: 0.03em; }
+  .collection-count { font-size: 12px; color: var(--ink-soft); }
+
+  .archive { display: flex; flex-direction: column; gap: 14px; }
+  .empty-note {
+    text-align: center; padding: 30px 16px; color: var(--ink-soft); font-size: 13px;
+    border: 1px dashed var(--line); border-radius: 12px;
+  }
+
+  .archive-ticket {
+    display: flex; background: var(--paper); border-radius: 12px; overflow: hidden;
+    box-shadow: 0 8px 20px rgba(31, 92, 134, 0.12); animation: rise 0.3s ease both;
+  }
+  @keyframes rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+  .archive-stub {
+    width: 46px; flex-shrink: 0; background: var(--blue-deep);
+    border-right: 2px dashed rgba(255,255,255,0.3);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .archive-stub span {
+    writing-mode: vertical-rl; text-orientation: mixed;
+    font-family: 'Cormorant Garamond', serif; font-weight: 600; font-size: 11px; letter-spacing: 0.24em;
+    color: #ffffff; text-transform: uppercase;
+  }
+
+  .archive-body { flex: 1; padding: 16px 20px; min-width: 0; }
+  .archive-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+  .archive-title { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 700; color: var(--ink); margin: 0; }
+  .archive-date { font-size: 11.5px; color: var(--ink-soft); margin: 3px 0 0; letter-spacing: 0.03em; }
+  .archive-del {
+    background: transparent; border: 1px solid var(--line); color: var(--ink-soft);
+    border-radius: 6px; width: 26px; height: 26px; font-size: 12px; cursor: pointer; flex-shrink: 0;
+  }
+
+  .archive-row { margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--line); }
+  .archive-row-label {
+    font-family: 'Cormorant Garamond', serif; font-weight: 600; font-size: 11px; letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--blue-mid); margin: 0 0 3px;
+  }
+  .archive-row-text { font-size: 14px; color: var(--ink); line-height: 1.55; margin: 0; white-space: pre-wrap; }
+  .archive-row-text.quote { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 15.5px; }
+
+  @media (max-width: 480px) {
+    .stub { width: 70px; }
+    .stub-mid { font-size: 14px; }
+    .ticket-main { padding: 22px 18px 18px; }
+    #f-title { font-size: 20px; }
+    .page-title { font-size: 34px; }
+    .ticket::before { left: calc(70px - 11px); }
+    .field-row { flex-direction: column; gap: 0; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="page-header">
+    <div class="page-eyebrow">A ticket for every film</div>
+    <h1 class="page-title">Ticket</h1>
+    <p class="page-sub">One film, one ticket, kept for good</p>
+  </div>
+
+  <div class="stage">
+    <div class="ticket">
+      <div class="stub">
+        <div class="stub-top">Admit<br/>One</div>
+        <div class="stub-mid">Film journal</div>
+        <div class="stub-serial" id="next-serial">No. 001</div>
+      </div>
+      <div class="ticket-main">
+        <form id="ticket-form">
+          <div class="field-row">
+            <div class="field-block">
+              <div class="field-num">00 · Title</div>
+              <input id="f-title" placeholder="Film title" required />
+            </div>
+            <div class="field-block" style="max-width:150px;">
+              <div class="field-num">Date</div>
+              <input id="f-date" type="date" />
+            </div>
+          </div>
+          <div class="field-block">
+            <div class="field-num">01 · I like it</div>
+            <textarea id="f-like" rows="2" placeholder="What worked for you"></textarea>
+          </div>
+          <div class="field-block">
+            <div class="field-num">02 · I hate it</div>
+            <textarea id="f-hate" rows="2" placeholder="What didn't"></textarea>
+          </div>
+          <div class="field-block">
+            <div class="field-num">03 · I love this line</div>
+            <textarea id="f-love" rows="2" placeholder="The line that stayed with you"></textarea>
+          </div>
+          <div class="field-block">
+            <div class="field-num">04 · Think about...</div>
+            <textarea id="f-think" rows="2" placeholder="What keeps coming back to you"></textarea>
+          </div>
+
+          <div class="ticket-footer">
+            <button type="submit" class="save-btn">Save ticket</button>
+          </div>
+        </form>
+      </div>
+    </div>
+    <p class="save-warn" id="save-warn">Couldn't save. Check your connection and try again.</p>
+
+    <div class="collection-head">
+      <p class="collection-title">Collected tickets</p>
+      <span class="collection-count" id="collection-count"></span>
+    </div>
+    <div class="archive" id="archive"></div>
+  </div>
+
+<script>
+(function(){
+  var STORAGE_KEY = "ticket-journal-entries";
+  var entries = [];
+
+  var form = document.getElementById('ticket-form');
+  var archiveEl = document.getElementById('archive');
+  var countEl = document.getElementById('collection-count');
+  var serialEl = document.getElementById('next-serial');
+  var warnEl = document.getElementById('save-warn');
+
+  function pad(n){ return String(n).padStart(3, '0'); }
+  function uid(){ return Date.now() + '-' + Math.random().toString(36).slice(2,8); }
+  function todayIso(){ return new Date().toISOString().slice(0,10); }
+  function formatDate(iso){
+    if (!iso) return '';
+    var parts = iso.split('-');
+    var d = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  }
+
+  document.getElementById('f-date').value = todayIso();
+
+  async function load(){
+    try {
+      var res = await window.storage.get(STORAGE_KEY, false);
+      if (res && res.value) entries = JSON.parse(res.value);
+    } catch(e) {}
+    render();
+  }
+
+  async function persist(){
+    try {
+      var res = await window.storage.set(STORAGE_KEY, JSON.stringify(entries), false);
+      warnEl.style.display = res ? 'none' : 'block';
+    } catch(e) {
+      warnEl.style.display = 'block';
+    }
+  }
+
+  form.onsubmit = async function(e){
+    e.preventDefault();
+    var title = document.getElementById('f-title').value.trim();
+    if (!title) return;
+    var entry = {
+      id: uid(),
+      title: title,
+      date: document.getElementById('f-date').value || todayIso(),
+      like: document.getElementById('f-like').value.trim(),
+      hate: document.getElementById('f-hate').value.trim(),
+      love: document.getElementById('f-love').value.trim(),
+      think: document.getElementById('f-think').value.trim()
+    };
+    entries.unshift(entry);
+    form.reset();
+    document.getElementById('f-date').value = todayIso();
+    await persist();
+    render();
+  };
+
+  async function deleteEntry(id){
+    entries = entries.filter(function(en){ return en.id !== id; });
+    await persist();
+    render();
+  }
+
+  var ROWS = [
+    { key: 'like', label: '01 · I like it' },
+    { key: 'hate', label: '02 · I hate it' },
+    { key: 'love', label: '03 · I love this line', quote: true },
+    { key: 'think', label: '04 · Think about...' }
+  ];
+
+  function render(){
+    serialEl.textContent = 'No. ' + pad(entries.length + 1);
+    countEl.textContent = entries.length + (entries.length === 1 ? ' ticket' : ' tickets');
+    archiveEl.innerHTML = '';
+    if (entries.length === 0){
+      archiveEl.innerHTML = '<div class="empty-note">No tickets yet. Fill one out above and save it.</div>';
+      return;
+    }
+    entries.forEach(function(en, idx){
+      var card = document.createElement('div');
+      card.className = 'archive-ticket';
+
+      var stub = document.createElement('div');
+      stub.className = 'archive-stub';
+      var span = document.createElement('span');
+      span.textContent = 'No. ' + pad(entries.length - idx);
+      stub.appendChild(span);
+
+      var body = document.createElement('div');
+      body.className = 'archive-body';
+
+      var top = document.createElement('div');
+      top.className = 'archive-top';
+      var left = document.createElement('div');
+      var titleEl = document.createElement('p');
+      titleEl.className = 'archive-title';
+      titleEl.textContent = en.title;
+      var dateEl = document.createElement('p');
+      dateEl.className = 'archive-date';
+      dateEl.textContent = formatDate(en.date);
+      left.appendChild(titleEl);
+      left.appendChild(dateEl);
+
+      var del = document.createElement('button');
+      del.className = 'archive-del';
+      del.setAttribute('aria-label', 'Delete');
+      del.textContent = '\u2715';
+      del.onclick = function(){ deleteEntry(en.id); };
+
+      top.appendChild(left);
+      top.appendChild(del);
+      body.appendChild(top);
+
+      ROWS.forEach(function(r){
+        if (!en[r.key]) return;
+        var row = document.createElement('div');
+        row.className = 'archive-row';
+        var lbl = document.createElement('p');
+        lbl.className = 'archive-row-label';
+        lbl.textContent = r.label;
+        var txt = document.createElement('p');
+        txt.className = 'archive-row-text' + (r.quote ? ' quote' : '');
+        txt.textContent = en[r.key];
+        row.appendChild(lbl);
+        row.appendChild(txt);
+        body.appendChild(row);
+      });
+
+      card.appendChild(stub);
+      card.appendChild(body);
+      archiveEl.appendChild(card);
+    });
+  }
+
+  load();
+})();
+</script>
+</body>
+</html>
